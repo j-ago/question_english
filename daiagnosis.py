@@ -1,70 +1,232 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+import matplotlib as mpl
 
-# Load the Excel file
-file_path = 'daiagnosis_rawdata.xlsx'
-df = pd.read_excel(file_path, sheet_name=0)
+# Load the Japanese and English Excel files
+japanese_file_path = 'daiagnosis_rawdata.xlsx'
+english_file_path = 'daiagnosis_rawdata_translated.xlsx'
+
+# Attempt to load the Japanese Excel file
+try:
+    df_japanese = pd.read_excel(japanese_file_path)
+except FileNotFoundError:
+    st.error(f"指定された日本語ファイルが見つかりません: {japanese_file_path}")
+    st.stop()
+
+# Attempt to load the English Excel file
+try:
+    df_english = pd.read_excel(english_file_path)
+except FileNotFoundError:
+    st.error(f"指定された英語ファイルが見つかりません: {english_file_path}")
+    st.stop()
+
+# 言語設定
+languages = ['English', '日本語']
+default_language = '日本語'
+
+# テキスト辞書
+texts = {
+    'English': {
+        'title': 'Body Type Diagnosis Questionnaire (Simple Version 2024)',
+        'description': 'Please read each question and select the "Situation/State" that is closest to your current self.',
+        'button': 'Show Diagnosis Result',
+        'doshas': {
+            'Vata': 'Vata is a body type with the energy of wind and air, symbolizing movement and change. Imaginative and active, but tends to have anxiety and insomnia.',
+            'Pitta': 'Pitta is a body type with the energy of fire and water, symbolizing transformation and metabolism. Possesses strong leadership and decisiveness, but can become easily angry.',
+            'Kapha': 'Kapha is a body type with the energy of water and earth, symbolizing stability and endurance. Calm and patient, but may tend to be lazy.',
+            'Tri Dosha': 'Tri Dosha is an ideal body type with a balanced presence of Vata, Pitta, and Kapha. Health and stability are easily maintained, but overall balance is important.'
+        },
+        'result': 'Your body type is: {dosha}',
+        'failure': 'Diagnosis failed.'
+    },
+    '日本語': {
+        'title': '体質診断質問票（簡易版2024）',
+        'description': '各質問内容を見て、今の自分に最も近い「状況・状態」を選んでください。',
+        'button': '診断結果を表示',
+        'doshas': {
+            'Vata': 'Vataは風や空気のエネルギーを持つ体質で、動きや変化を象徴します。想像力豊かで活動的ですが、不安や不眠になりやすい傾向があります。',
+            'Pitta': 'Pittaは火と水のエネルギーを持つ体質で、変換や代謝を象徴します。強いリーダーシップと決断力を持ちますが、怒りっぽくなることがあります。',
+            'Kapha': 'Kaphaは水と地のエネルギーを持つ体質で、安定性や持久力を象徴します。穏やかで忍耐強いですが、怠けがちになることがあります。',
+            'Tri Dosha': 'Tri DoshaはVata、Pitta、Kaphaがバランスよく存在する理想的な体質です。健康と安定が保たれやすいですが、全体のバランスが重要です。'
+        },
+        'result': 'あなたの体質は: {dosha}',
+        'failure': '診断に失敗しました。'
+    }
+}
+
+# Doshaの日本語名
+dosha_names_japanese = {
+    'Vata': 'ヴァータ',
+    'Pitta': 'ピッタ',
+    'Kapha': 'カパ',
+    'Tri Dosha': 'トリ・ドーシャ'
+}
+
+# 日本語フォントの設定
+def set_japanese_font(language):
+    if language == '日本語':
+        # 利用可能な日本語フォントを探す
+        jp_fonts = ['IPAexGothic', 'Noto Sans CJK JP', 'MS Gothic', 'Yu Gothic', 'ヒラギノ角ゴ ProN W3']
+        available_fonts = set([f.name for f in font_manager.fontManager.ttflist])
+        selected_font = None
+        for font in jp_fonts:
+            if font in available_fonts:
+                selected_font = font
+                break
+        if selected_font:
+            mpl.rcParams['font.family'] = selected_font
+            mpl.rcParams['axes.unicode_minus'] = False  # マイナス記号の表示を可能にする
+        else:
+            st.warning("日本語フォントが見つかりませんでした。フォントをインストールしてください。")
+    else:
+        # 英語の場合はデフォルトフォントを使用
+        mpl.rcParams['font.family'] = 'DejaVu Sans'
+        mpl.rcParams['axes.unicode_minus'] = False
 
 # Function to calculate dosha percentages
 def calculate_dosha_percentages(df, responses):
-    df_responses = df.copy()
-    df_responses['回答'] = responses['Vata']
-    df_responses['回答.1'] = responses['Pitta']
-    df_responses['回答.2'] = responses['Kapha']
-    
-    vata_score = df_responses['回答'].sum()
-    pitta_score = df_responses['回答.1'].sum()
-    kapha_score = df_responses['回答.2'].sum()
+    """
+    Calculate the percentages of Vata, Pitta, and Kapha based on the user's responses.
+    """
+    vata_score = sum(responses['Vata'])
+    pitta_score = sum(responses['Pitta'])
+    kapha_score = sum(responses['Kapha'])
     
     total_score = vata_score + pitta_score + kapha_score
+    
+    if total_score == 0:
+        # Avoid division by zero
+        return 0, 0, 0
+    
+    # Calculate percentages
     vata_percentage = (vata_score / total_score) * 100
     pitta_percentage = (pitta_score / total_score) * 100
     kapha_percentage = (kapha_score / total_score) * 100
     
     return vata_percentage, pitta_percentage, kapha_percentage
 
-# Streamlit UI
-st.title('体質診断質問票（簡易版2024）')
+# Function to display the Dosha description
+def display_dosha_description(dosha, language):
+    """
+    Display the description of each Dosha based on the selected language.
+    """
+    st.write(texts[language]['doshas'][dosha])
 
-st.write('各質問内容を見て、最も自分に当てはまる「状況・状態」に「はい」を押してください。')
+# Streamlit UIのヘッダー部分に言語選択プルダウンを追加
+st.set_page_config(layout="wide")  # レイアウトをワイドに設定
 
+with st.container():
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        pass  # 左側のカラムは空白
+    with col2:
+        language = st.selectbox('', options=languages, index=languages.index(default_language))
+
+# ロードする言語のテキストを設定
+current_text = texts[language]
+
+# 日本語フォントの設定を適用
+set_japanese_font(language)
+
+# アプリケーションのタイトル
+st.title(current_text['title'])
+
+# アプリケーションの説明文
+st.write(current_text['description'])
+
+# 質問データを言語に応じて選択
+df = df_japanese if language == '日本語' else df_english
+
+# 回答を格納する辞書
 responses = {
     'Vata': [],
     'Pitta': [],
     'Kapha': []
 }
 
+# 各質問を表示し、ラジオボタンで回答を収集
 for i in range(len(df)):
-    st.write(df.iloc[i, 1])  # Display the question
-    vata_col, pitta_col, kapha_col = st.columns(3)
+    question_number = i + 1
+    if language == '日本語':
+        st.write(f"質問 {question_number}: {df.iloc[i, 1]}")
+    else:
+        st.write(f"Question {question_number}: {df.iloc[i, 1]}")
     
-    with vata_col:
-        response_vata = st.radio(df.iloc[i, 2], ["はい", "いいえ"], index=1, key=f'vata_{i}')
-        responses['Vata'].append(1 if response_vata == "はい" else 0)
+    # 選択肢の表示（言語に応じた選択肢を使用）
+    choice = st.radio(
+        "選択してください:" if language == '日本語' else "Please select:", 
+        options=['Vata', 'Pitta', 'Kapha'], 
+        format_func=lambda x: df.iloc[i, 2] if x == 'Vata' else (df.iloc[i, 4] if x == 'Pitta' else df.iloc[i, 6]), 
+        key=f'choice_{i}',
+        label_visibility="collapsed"  # ラベルを非表示にしてUIをすっきりさせる
+    )
     
-    with pitta_col:
-        response_pitta = st.radio(df.iloc[i, 4], ["はい", "いいえ"], index=1, key=f'pitta_{i}')
-        responses['Pitta'].append(1 if response_pitta == "はい" else 0)
-    
-    with kapha_col:
-        response_kapha = st.radio(df.iloc[i, 6], ["はい", "いいえ"], index=1, key=f'kapha_{i}')
-        responses['Kapha'].append(1 if response_kapha == "はい" else 0)
+    # 選択に基づいて回答をカウント
+    responses['Vata'].append(1 if choice == 'Vata' else 0)
+    responses['Pitta'].append(1 if choice == 'Pitta' else 0)
+    responses['Kapha'].append(1 if choice == 'Kapha' else 0)
 
-if st.button('診断結果を表示'):
+# 診断結果を表示するボタン
+if st.button(current_text['button']):
+    # パーセンテージを計算
     vata_percentage, pitta_percentage, kapha_percentage = calculate_dosha_percentages(df, responses)
     
-    st.write(f'Vata: {vata_percentage:.2f}%')
-    st.write(f'Pitta: {pitta_percentage:.2f}%')
-    st.write(f'Kapha: {kapha_percentage:.2f}%')
-    
-    # Determine Dosha
-    if 28 <= vata_percentage <= 38 and 28 <= pitta_percentage <= 38 and 28 <= kapha_percentage <= 38:
-        st.write('あなたの体質は: Tri Dosha')
-    elif vata_percentage > pitta_percentage and vata_percentage > kapha_percentage:
-        st.write('あなたの体質は: Vata')
-    elif pitta_percentage > vata_percentage and pitta_percentage > kapha_percentage:
-        st.write('あなたの体質は: Pitta')
-    elif kapha_percentage > vata_percentage and kapha_percentage > pitta_percentage:
-        st.write('あなたの体質は: Kapha')
+    # パーセンテージを表示
+    if language == '日本語':
+        st.write(f'ヴァータ: {vata_percentage:.2f}%')
+        st.write(f'ピッタ: {pitta_percentage:.2f}%')
+        st.write(f'カパ: {kapha_percentage:.2f}%')
     else:
-        st.write('診断に失敗しました。')
+        st.write(f'Vata: {vata_percentage:.2f}%')
+        st.write(f'Pitta: {pitta_percentage:.2f}%')
+        st.write(f'Kapha: {kapha_percentage:.2f}%')
+    
+    # 円グラフを表示
+    if language == 'English':
+        labels = ['Vata', 'Pitta', 'Kapha']
+    else:
+        labels = [dosha_names_japanese[d] for d in ['Vata', 'Pitta', 'Kapha']]
+    
+    sizes = [vata_percentage, pitta_percentage, kapha_percentage]
+    colors = ['#ff9999','#66b3ff','#99ff99']
+    
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors, startangle=90)
+    ax.axis('equal')  # 円グラフを円形に保つ
+    
+    st.pyplot(fig)
+    
+    # Doshaを判定して説明を表示
+    # まずTri Doshaをチェック
+    if 28 <= vata_percentage <= 38 and 28 <= pitta_percentage <= 38 and 28 <= kapha_percentage <= 38:
+        doshas = ['Tri Dosha']
+    else:
+        # 最大割合を見つける
+        max_percentage = max(vata_percentage, pitta_percentage, kapha_percentage)
+        # 最大割合を持つDoshaをリストに追加
+        doshas = []
+        if vata_percentage == max_percentage:
+            doshas.append('Vata')
+        if pitta_percentage == max_percentage:
+            doshas.append('Pitta')
+        if kapha_percentage == max_percentage:
+            doshas.append('Kapha')
+    
+    # Check if doshas were determined, else handle error cases
+    if doshas:
+        if 'Tri Dosha' in doshas:
+            dosha = 'Tri Dosha'
+            st.write(current_text['result'].format(dosha=dosha))
+            display_dosha_description(dosha, language)
+        else:
+            if language == 'English':
+                dosha_text = ' and '.join(doshas)
+            else:
+                dosha_text = ' と '.join([dosha_names_japanese[d] for d in doshas])
+            st.write(current_text['result'].format(dosha=dosha_text))
+            for d in doshas:
+                display_dosha_description(d, language)
+    else:
+        st.write(current_text['failure'])
