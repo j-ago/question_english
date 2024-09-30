@@ -175,9 +175,9 @@ if st.button(current_text['button']):
     
     # パーセンテージを表示
     if language == '日本語':
-        st.write(f'ヴァータ: {vata_percentage:.2f}%')
-        st.write(f'ピッタ: {pitta_percentage:.2f}%')
-        st.write(f'カパ: {kapha_percentage:.2f}%')
+        st.write(f'Vata: {vata_percentage:.2f}%')
+        st.write(f'Pitta: {pitta_percentage:.2f}%')
+        st.write(f'Kapha: {kapha_percentage:.2f}%')
     else:
         st.write(f'Vata: {vata_percentage:.2f}%')
         st.write(f'Pitta: {pitta_percentage:.2f}%')
