@@ -72,7 +72,12 @@ texts = {
             'Tri Dosha': 'Tri Dosha is an ideal body type with balanced presence of Vata, Pitta, and Kapha. Health and stability are easily maintained, but overall balance is important.'
         },
         'result': 'Your body type is: {dosha}',
-        'failure': 'Diagnosis failed.'
+        'failure': 'Diagnosis failed.',
+        'links': {
+            'Vata': 'Here is the [Vata body type diagnosis app](https://cm8xpeezsc886kh36b87h6.streamlit.app/).',
+            'Pitta': 'Here is the [Pitta body type diagnosis app](https://6v7fm3yv57e8aohuxd56ka.streamlit.app/).',
+            'Kapha': 'Here is the [Kapha body type diagnosis app](https://nrbnwbct2vh7irzzufujgx.streamlit.app/).'
+        }
     },
     '日本語': {
         'title': '体質診断質問票（簡易版2024）',
@@ -85,7 +90,12 @@ texts = {
             'Tri Dosha': 'Tri DoshaはVata、Pitta、Kaphaがバランスよく存在する理想的な体質です。健康と安定が保たれやすいですが、全体のバランスが重要です。'
         },
         'result': 'あなたの体質は: {dosha}',
-        'failure': '診断に失敗しました。'
+        'failure': '診断に失敗しました。',
+        'links': {
+            'Vata': 'Vataの体質診断アプリはこちら： [リンク](https://cm8xpeezsc886kh36b87h6.streamlit.app/)。',
+            'Pitta': 'Pittaの体質診断アプリはこちら： [リンク](https://6v7fm3yv57e8aohuxd56ka.streamlit.app/)。',
+            'Kapha': 'Kaphaの体質診断アプリはこちら： [リンク](https://nrbnwbct2vh7irzzufujgx.streamlit.app/)。'
+        }
     }
 }
 
@@ -105,6 +115,8 @@ with st.container():
     with col1:
         pass  # 左側のカラムは空白
     with col2:
+        # 言語選択のラベルを追加
+        st.write("言語 - Language")  # 追加部分
         language = st.selectbox('', options=languages, index=languages.index(default_language))
 
 # ロードする言語のテキストを設定
@@ -211,5 +223,12 @@ if st.button(current_text['button']):
             st.write(current_text['result'].format(dosha=dosha_text))
             for d in doshas:
                 display_dosha_description(d, texts, language)
+        
+        # 判定されたDoshaに応じてリンクを表示
+        for d in doshas:
+            if d in ['Vata', 'Pitta', 'Kapha']:
+                link_text = current_text['links'][d]
+                st.markdown(link_text)
     else:
         st.write(current_text['failure'])
+
