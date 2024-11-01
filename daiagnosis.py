@@ -74,9 +74,9 @@ texts = {
         'result': 'Your body type is: {dosha}',
         'failure': 'Diagnosis failed.',
         'links': {
-            'Vata': 'Here is the [Vata body type diagnosis app](https://cm8xpeezsc886kh36b87h6.streamlit.app/).',
-            'Pitta': 'Here is the [Pitta body type diagnosis app](https://6v7fm3yv57e8aohuxd56ka.streamlit.app/).',
-            'Kapha': 'Here is the [Kapha body type diagnosis app](https://nrbnwbct2vh7irzzufujgx.streamlit.app/).'
+            'Vata': 'Here is the [Vata body type diagnosis app](https://fklvzgcyknq9f8zkwsrjm6.streamlit.app/).',
+            'Pitta': 'Here is the [Pitta body type diagnosis app](https://lpgh4bpuay8cfqxf7cbhoz.streamlit.app/).',
+            'Kapha': 'Here is the [Kapha body type diagnosis app](https://amh8axxvtmeda9te6l4wrk.streamlit.app/).'
         }
     },
     '日本語': {
@@ -92,9 +92,9 @@ texts = {
         'result': 'あなたの体質は: {dosha}',
         'failure': '診断に失敗しました。',
         'links': {
-            'Vata': 'Vataの体質診断アプリはこちら： [リンク](https://cm8xpeezsc886kh36b87h6.streamlit.app/)。',
-            'Pitta': 'Pittaの体質診断アプリはこちら： [リンク](https://6v7fm3yv57e8aohuxd56ka.streamlit.app/)。',
-            'Kapha': 'Kaphaの体質診断アプリはこちら： [リンク](https://nrbnwbct2vh7irzzufujgx.streamlit.app/)。'
+            'Vata': 'Vataの体質診断アプリはこちら： [リンク](https://fklvzgcyknq9f8zkwsrjm6.streamlit.app/)。',
+            'Pitta': 'Pittaの体質診断アプリはこちら： [リンク](https://lpgh4bpuay8cfqxf7cbhoz.streamlit.app/)。',
+            'Kapha': 'Kaphaの体質診断アプリはこちら： [リンク](https://amh8axxvtmeda9te6l4wrk.streamlit.app/)。'
         }
     }
 }
@@ -231,4 +231,3 @@ if st.button(current_text['button']):
                 st.markdown(link_text)
     else:
         st.write(current_text['failure'])
-
