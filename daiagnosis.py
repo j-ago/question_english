@@ -92,13 +92,12 @@ texts = {
         'result': 'あなたの体質は: {dosha}',
         'failure': '診断に失敗しました。',
         'links': {
-            'Vata': 'Vataの体質診断アプリはこちら： [リンク](https://fklvzgcyknq9f8zkwsrjm6.streamlit.app/)。',
-            'Pitta': 'Pittaの体質診断アプリはこちら： [リンク](https://lpgh4bpuay8cfqxf7cbhoz.streamlit.app/)。',
-            'Kapha': 'Kaphaの体質診断アプリはこちら： [リンク](https://amh8axxvtmeda9te6l4wrk.streamlit.app/)。'
+            'Vata': 'Vataの体質アンバランス度診断アプリはこちらから： [リンク](https://fklvzgcyknq9f8zkwsrjm6.streamlit.app/)。',
+            'Pitta': 'Pittaの体質アンバランス度診断アプリはこちらから： [リンク](https://lpgh4bpuay8cfqxf7cbhoz.streamlit.app/)。',
+            'Kapha': 'Kaphaの体質アンバランス度診断アプリはこちらから： [リンク](https://amh8axxvtmeda9te6l4wrk.streamlit.app/)。'
         }
     }
 }
-
 # Doshaの日本語名
 dosha_names_japanese = {
     'Vata': 'ヴァータ',
